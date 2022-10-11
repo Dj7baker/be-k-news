@@ -1,13 +1,30 @@
 const express = require("express");
-const { getTopics } = require("./controllers/controller");
+const { getTopics, getArticleByID } = require("./controllers/controller");
 
 const app = express();
 app.use(express.json());
 
 app.get("/api/topics", getTopics);
+app.get("/api/articles/:article_id", getArticleByID);
 
-app.all("*", (request, response) => {
-  response.status(400).send({ message: "Bad Request" });
+app.use((err, request, response, next) => {
+    if(err.code === '22P02'){
+  response.status(400).send({ message: "Invalid Id" })
+} else if(err.code === '23503'){
+    response.status(404).send({ message: "Id Not Found"})
+}
+else {
+next(err)
+}
+});
+
+
+app.use((err, request, response, next) => {
+    if(err.status){
+        response.status(err.status).send({message : err.message})
+    } else {
+        next(err)
+    }
 });
 
 app.use((err, request, response, next) => {

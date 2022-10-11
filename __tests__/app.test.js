@@ -11,17 +11,6 @@ afterAll(() => {
   return db.end();
 });
 
-describe("400", () => {
-  test("404: Bad Request - invalid path", () => {
-    return request(app)
-      .get("/api/invalidpath")
-      .expect(400)
-      .then(({ body }) => {
-        expect(body.message).toBe("Bad Request");
-      });
-  });
-});
-
 describe("GET /api/topics", () => {
   test("returns status 200 when successful", () => {
     return request(app).get("/api/topics").expect(200);
@@ -45,4 +34,38 @@ describe("GET /api/topics", () => {
         );
       });
   });
+});
+
+describe("GET /api/articles/:article_id", () => {
+  test("200: returns an object containing information on the requested article", () => {
+    return request(app)
+      .get("/api/articles/7")
+      .then(({ body }) => {
+        expect(body.article).toEqual({
+          article_id: 7,
+          title: "Z",
+          topic: "mitch",
+          author: "icellusedkars",
+          body: "I was hungry.",
+          created_at: "2020-01-07T14:08:00.000Z",
+          votes: 0,
+        });
+      });
+  });
+  test('400: invalid data type', () => {
+    return request(app)
+    .get('/api/articles/nan')
+    .expect(400)
+    .then(({body}) => {
+        expect(body.message).toBe("Invalid Id")
+    })
+  })
+  test('404: correct data type but does not exist', () => {
+return request(app)
+.get('/api/articles/7777777')
+.expect(404)
+.then(({body}) => {
+    expect(body.message).toBe('Id Not Found')
+})
+  })
 });
