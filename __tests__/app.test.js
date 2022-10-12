@@ -69,3 +69,22 @@ return request(app)
 })
   })
 });
+
+describe("Get /api/users", () => {
+    test("returns status 200 when successful", () => {
+        return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({body}) => {
+            expect(body.users.length).toBe(4)
+            expect(body.users).toBeInstanceOf(Array);
+            expect(body.users.forEach((users) => {
+                expect(users).toEqual(expect.objectContaining({
+                    username: expect.any(String),
+                    name: expect.any(String),
+                    avatar_url: expect.any(String),
+                }))
+            }))
+        })
+    })
+})

@@ -1,11 +1,12 @@
 const express = require("express");
-const { getTopics, getArticleByID } = require("./controllers/controller");
+const { getTopics, getArticleByID, getUsers } = require("./controllers/controller");
 
 const app = express();
 app.use(express.json());
 
 app.get("/api/topics", getTopics);
 app.get("/api/articles/:article_id", getArticleByID);
+app.get("/api/users", getUsers);
 
 app.use((err, request, response, next) => {
     if(err.code === '22P02'){
@@ -17,7 +18,6 @@ else {
 next(err)
 }
 });
-
 
 app.use((err, request, response, next) => {
     if(err.status){
