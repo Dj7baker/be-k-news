@@ -1,4 +1,9 @@
-const { selectTopics, selectArticleByID, selectUsers } = require("../models/model");
+const {
+  selectTopics,
+  selectArticleByID,
+  selectUsers,
+  updateArticle,
+} = require("../models/model");
 
 exports.getTopics = (request, response, next) => {
   selectTopics()
@@ -16,13 +21,24 @@ exports.getArticleByID = (request, response, next) => {
     .then((article) => {
       response.status(200).send({ article });
     })
-    .catch(next)
+    .catch(next);
 };
 
 exports.getUsers = (request, response, next) => {
-    selectUsers()
+  selectUsers()
     .then((users) => {
-        response.status(200).send({ users })
+      response.status(200).send({ users });
     })
-    .catch(next)
-}
+    .catch(next);
+};
+
+exports.patchIncVotes = (request, response, next) => {
+  const { body } = request;
+  const { article_id } = request.params;
+
+  updateArticle(body, article_id)
+    .then((article) => {
+      response.status(201).send({ article });
+    })
+    .catch(next);
+};
