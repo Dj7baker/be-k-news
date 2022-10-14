@@ -6,6 +6,29 @@ exports.selectTopics = () => {
   });
 };
 
+exports.selectArticles = (topic) => {
+  let topicStr = ``;
+  let queryValues = [];
+
+  if (topic) {
+    topicStr = `WHERE topic = $1`;
+    queryValues.push(topic);
+  }
+
+  let queryStr = `SELECT articles.*, COUNT(comments.comment_id) AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id ${topicStr} GROUP BY articles.article_id ORDER BY created_at DESC;`;
+
+  return db.query(queryStr, queryValues).then(({ rows }) => {
+    if (rows.length === 0) {
+      return Promise.reject({
+        status: 404,
+        message: "404: Not Found",
+      });
+    } else {
+      return rows;
+    }
+  });
+};
+
 exports.selectArticleByID = (article_id) => {
   return db
     .query(

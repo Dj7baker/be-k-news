@@ -3,6 +3,7 @@ const {
   selectArticleByID,
   selectUsers,
   updateArticle,
+  selectArticles,
 } = require("../models/model");
 
 exports.getTopics = (request, response, next) => {
@@ -28,6 +29,15 @@ exports.getUsers = (request, response, next) => {
   selectUsers()
     .then((users) => {
       response.status(200).send({ users });
+    })
+    .catch(next);
+};
+
+exports.getArticles = (request, response, next) => {
+  const { topic } = request.query;
+  selectArticles(topic)
+    .then((articles) => {
+      response.status(200).send({ articles: articles });
     })
     .catch(next);
 };
