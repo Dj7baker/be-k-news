@@ -37,7 +37,7 @@ describe("GET /api/topics", () => {
 });
 
 describe("GET /api/articles/:article_id", () => {
-  test("200: returns an object containing information on the requested article", () => {
+  test("200: returns an object containing information on the requested article including a comment count with total comments of the article id", () => {
     return request(app)
       .get("/api/articles/7")
       .then(({ body }) => {
@@ -49,6 +49,23 @@ describe("GET /api/articles/:article_id", () => {
           body: "I was hungry.",
           created_at: "2020-01-07T14:08:00.000Z",
           votes: 0,
+          comment_count: "0",
+        });
+      });
+  });
+  test("200: returns an object containing information on the requested article including a comment count with total comments of the article id", () => {
+    return request(app)
+      .get("/api/articles/1")
+      .then(({ body }) => {
+        expect(body.article).toEqual({
+          article_id: 1,
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: "2020-07-09T20:11:00.000Z",
+          votes: 100,
+          comment_count: "11",
         });
       });
   });
@@ -146,7 +163,7 @@ describe("PATCH /api/articles/:article_id", () => {
         expect(body.message).toBe("404: Not Found");
       });
   });
-  test("400: invalid data type", () => {
+  test("400: invalid data type for votes", () => {
     const test = {
       inc_votes: "NaN",
     };
@@ -199,9 +216,7 @@ describe("GET /api/articles", () => {
       .then(({ body }) => {
         expect(
           body.articles.forEach((article) => {
-            expect(article).toEqual(
-              expect.objectContaining({ topic: "cats" })
-            );
+            expect(article).toEqual(expect.objectContaining({ topic: "cats" }));
           })
         );
       });
@@ -215,4 +230,3 @@ describe("GET /api/articles", () => {
       });
   });
 });
-
