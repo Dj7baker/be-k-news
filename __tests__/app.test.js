@@ -136,8 +136,8 @@ describe("PATCH /api/articles/:article_id", () => {
   });
   test("404: correct data type but does not exist", () => {
     const test = {
-      inc_votes : 7
-    }
+      inc_votes: 7,
+    };
     return request(app)
       .patch("/api/articles/7777")
       .send(test)
@@ -148,8 +148,8 @@ describe("PATCH /api/articles/:article_id", () => {
   });
   test("400: invalid data type", () => {
     const test = {
-      inc_votes: "NaN"
-    }
+      inc_votes: "NaN",
+    };
     return request(app)
       .patch("/api/articles/3")
       .send(test)
@@ -157,5 +157,62 @@ describe("PATCH /api/articles/:article_id", () => {
       .then(({ body }) => {
         expect(body.message).toBe("400: Bad Request");
       });
-    });
+  });
 });
+
+describe("GET /api/articles", () => {
+  test("returns status 200 when successful", () => {
+    return request(app).get("/api/articles").expect(200);
+  });
+  test("200: should respond with an array of articles including a comment count and are sorted by date in decending order", () => {
+    return request(app)
+      .get("/api/articles")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles.length).toBe(12);
+        expect(body.articles).toBeInstanceOf(Array);
+        expect(body.articles).toBeSortedBy("created_at", {
+          descending: true,
+        });
+        expect(
+          body.articles.forEach((article) => {
+            expect(article).toEqual(
+              expect.objectContaining({
+                author: expect.any(String),
+                body: expect.any(String),
+                title: expect.any(String),
+                article_id: expect.any(Number),
+                topic: expect.any(String),
+                created_at: expect.any(String),
+                votes: expect.any(Number),
+                comment_count: expect.any(String),
+              })
+            );
+          })
+        );
+      });
+  });
+  test("200: returns only objects with specified query of topic", () => {
+    return request(app)
+      .get("/api/articles?topic=cats")
+      .expect(200)
+      .then(({ body }) => {
+        expect(
+          body.articles.forEach((article) => {
+            expect(article).toEqual(
+              expect.objectContaining({ topic: "cats" })
+            );
+          })
+        );
+      });
+  });
+  test("404: returns an error when passing an invalid topic", () => {
+    return request(app)
+      .get("/api/articles?topic=wrong")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.message).toBe("404: Not Found");
+      });
+  });
+});
+
