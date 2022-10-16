@@ -4,6 +4,7 @@ const {
   selectUsers,
   updateArticle,
   selectArticles,
+  selectComments,
 } = require("../models/model");
 
 exports.getTopics = (request, response, next) => {
@@ -49,6 +50,20 @@ exports.patchIncVotes = (request, response, next) => {
   updateArticle(body, article_id)
     .then((article) => {
       response.status(201).send({ article });
+    })
+    .catch(next);
+};
+
+exports.getComments = (request, response, next) => {
+  const { article_id } = request.params;
+  const promise = [selectComments(article_id)];
+  if (article_id) {
+    promise.push(selectArticleByID(article_id));
+  }
+  Promise.all(promise)
+    .then((result) => {
+      const comments = result[0];
+      response.status(200).send({ comments });
     })
     .catch(next);
 };

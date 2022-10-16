@@ -196,7 +196,6 @@ describe("GET /api/articles", () => {
             expect(article).toEqual(
               expect.objectContaining({
                 author: expect.any(String),
-                body: expect.any(String),
                 title: expect.any(String),
                 article_id: expect.any(Number),
                 topic: expect.any(String),
@@ -214,6 +213,7 @@ describe("GET /api/articles", () => {
       .get("/api/articles?topic=cats")
       .expect(200)
       .then(({ body }) => {
+        expect(body.articles).toHaveLength(1);
         expect(
           body.articles.forEach((article) => {
             expect(article).toEqual(expect.objectContaining({ topic: "cats" }));
@@ -221,9 +221,59 @@ describe("GET /api/articles", () => {
         );
       });
   });
+  test("200: returns an empty arry when topic query is valid but there are no articles for the topic", () => {
+    return request(app)
+      .get("/api/articles?topic=paper")
+      .expect(200)
+      .then(({ body }) => {
+        expect(body.articles).toHaveLength(0);
+        expect(body.articles).toBeInstanceOf(Array);
+      });
+  });
   test("404: returns an error when passing an invalid topic", () => {
     return request(app)
       .get("/api/articles?topic=wrong")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.message).toBe("404: Not Found");
+      });
+  });
+});
+
+describe("GET /api/articles/:article_id/comments", () => {
+  test("200: returns an array of comments for the given article id in order of the most recent comment first", () => {
+    return request(app)
+      .get("/api/articles/7/comments")
+      .then(({ body }) => {
+        expect(body.comments).toBeSortedBy("created_at", {
+          descending: true,
+        });
+        expect(
+          body.comments.forEach((comment) => {
+            expect(comment).toEqual(
+              expect.objectContaining({
+                comment_id: expect.any(Number),
+                votes: expect.any(Number),
+                created_at: expect.any(String),
+                author: expect.any(String),
+                body: expect.any(String),
+              })
+            );
+          })
+        );
+      });
+  });
+  test("400: invalid data type", () => {
+    return request(app)
+      .get("/api/articles/nan/comments")
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("400: Bad Request");
+      });
+  });
+  test("404: correct data type but does not exist", () => {
+    return request(app)
+      .get("/api/articles/7777/comments")
       .expect(404)
       .then(({ body }) => {
         expect(body.message).toBe("404: Not Found");

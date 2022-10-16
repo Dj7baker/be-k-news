@@ -15,17 +15,23 @@ exports.selectArticles = (topic) => {
     queryValues.push(topic);
   }
 
-  let queryStr = `SELECT articles.*, COUNT(comments.comment_id) AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id ${topicStr} GROUP BY articles.article_id ORDER BY created_at DESC;`;
+  let queryStr = `SELECT articles.article_id, articles.title, articles.topic, articles.author, articles.created_at, articles.votes, COUNT(comments.comment_id) AS comment_count FROM articles LEFT JOIN comments ON comments.article_id = articles.article_id ${topicStr} GROUP BY articles.article_id ORDER BY created_at DESC;`;
 
   return db.query(queryStr, queryValues).then(({ rows }) => {
-    if (rows.length === 0) {
-      return Promise.reject({
-        status: 404,
-        message: "404: Not Found",
-      });
-    } else {
-      return rows;
+    if (rows.length === 0 && topic) {
+      return db
+        .query("SELECT * FROM topics WHERE topics.slug = $1", [topic])
+        .then((topic) => {
+          if (topic.rows.length === 0) {
+            return Promise.reject({
+              status: 404,
+              message: "404: Not Found",
+            });
+          }
+          return rows;
+        });
     }
+    return rows;
   });
 };
 
@@ -44,6 +50,17 @@ exports.selectArticleByID = (article_id) => {
       } else {
         return rows[0];
       }
+    });
+};
+
+exports.selectComments = (article_id) => {
+  return db
+    .query(
+      `SELECT comments.comment_id, comments.votes, comments.created_at, comments.author, comments.body FROM comments WHERE comments.article_id=$1 ORDER BY created_at DESC;`,
+      [article_id]
+    )
+    .then(({ rows }) => {
+      return rows;
     });
 };
 
