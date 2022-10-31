@@ -5,6 +5,7 @@ const {
   updateArticle,
   selectArticles,
   selectComments,
+  insertComment,
 } = require("../models/model");
 
 exports.getTopics = (request, response, next) => {
@@ -64,6 +65,17 @@ exports.getComments = (request, response, next) => {
     .then((result) => {
       const comments = result[0];
       response.status(200).send({ comments });
+    })
+    .catch(next);
+};
+
+exports.postComment = (request, response, next) => {
+  const { body } = request;
+  const { article_id } = request.params;
+
+  insertComment(body, article_id)
+    .then((comment) => {
+      response.status(201).send({ comment });
     })
     .catch(next);
 };

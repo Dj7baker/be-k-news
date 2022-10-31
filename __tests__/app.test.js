@@ -47,7 +47,7 @@ describe("GET /api/articles/:article_id", () => {
           topic: "mitch",
           author: "icellusedkars",
           body: "I was hungry.",
-          created_at: "2020-01-07T14:08:00.000Z",
+          created_at: "2020-01-07T11:08:00.000Z",
           votes: 0,
           comment_count: "0",
         });
@@ -63,7 +63,7 @@ describe("GET /api/articles/:article_id", () => {
           topic: "mitch",
           author: "butter_bridge",
           body: "I find this existence challenging",
-          created_at: "2020-07-09T20:11:00.000Z",
+          created_at: "2020-07-09T18:11:00.000Z",
           votes: 100,
           comment_count: "11",
         });
@@ -126,7 +126,7 @@ describe("PATCH /api/articles/:article_id", () => {
           topic: "mitch",
           author: "icellusedkars",
           body: "some gifs",
-          created_at: "2020-11-03T09:12:00.000Z",
+          created_at: "2020-11-03T06:12:00.000Z",
           votes: 3,
         });
       });
@@ -146,7 +146,7 @@ describe("PATCH /api/articles/:article_id", () => {
           topic: "mitch",
           author: "icellusedkars",
           body: "some gifs",
-          created_at: "2020-11-03T09:12:00.000Z",
+          created_at: "2020-11-03T06:12:00.000Z",
           votes: -3,
         });
       });
@@ -274,6 +274,59 @@ describe("GET /api/articles/:article_id/comments", () => {
   test("404: correct data type but does not exist", () => {
     return request(app)
       .get("/api/articles/7777/comments")
+      .expect(404)
+      .then(({ body }) => {
+        expect(body.message).toBe("404: Not Found");
+      });
+  });
+});
+describe("POST /api/articles/:article_id/comments", () => {
+  test("201: responds with posted comment", () => {
+    const toPost = {
+      username: "icellusedkars",
+      body: "this is a comment",
+    };
+    return request(app)
+      .post("/api/articles/3/comments")
+      .send({ ...toPost, article_id: 3 })
+      .expect(201)
+      .then(({ body }) => {
+        expect(body.comment).toEqual(
+          expect.objectContaining({
+            comment_id: expect.any(Number),
+            votes: expect.any(Number),
+            created_at: expect.any(String),
+            author: expect.any(String),
+            body: expect.any(String),
+            article_id: expect.any(Number),
+          })
+        );
+        delete body.comment.created_at;
+        expect(body.comment).toEqual({
+          comment_id: 19,
+          body: "this is a comment",
+          votes: 0,
+          author: "icellusedkars",
+          article_id: 3,
+        });
+      });
+  });
+  test("400: invalid data input or username input", () => {
+    return request(app)
+      .post("/api/articles/3/comments")
+      .send({ body: "No comment" })
+      .expect(400)
+      .then(({ body }) => {
+        expect(body.message).toBe("400: Bad Request");
+      });
+  });
+  test("404: correct data type but does not exist", () => {
+    return request(app)
+      .post("/api/articles/7777/comments")
+      .send({
+        username: "icellusedkars",
+        body: "this is a comment",
+      })
       .expect(404)
       .then(({ body }) => {
         expect(body.message).toBe("404: Not Found");
