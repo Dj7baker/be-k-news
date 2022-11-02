@@ -10,8 +10,9 @@ const {
   postComment,
 } = require("./controllers/controller");
 
-app.use(cors());
+
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 app.get("/api/topics", getTopics);
@@ -19,8 +20,11 @@ app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id", getArticleByID);
 app.get("/api/articles/:article_id/comments", getComments);
 app.get("/api/users", getUsers);
-app.patch("/api/articles/:article_id", patchIncVotes)
-app.post("/api/articles/:article_id/comments", postComment)
+app.patch("/api/articles/:article_id", patchIncVotes);
+app.post("/api/articles/:article_id/comments", postComment);
+app.all("*", (request, response) => {
+  response.status(404).send({ message: "404: Not Found" });
+})
 
 app.use((err, request, response, next) => {
   if (err.code === "22P02") {
