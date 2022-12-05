@@ -3,11 +3,7 @@ const ENV = process.env.NODE_ENV || 'development';
 const config =
   ENV === 'production'
     ? {
-        connectionString: process.env.DATABASE_URL,
-        ssl: {
-          rejectUnauthorized: false,
-        },
-      }
+        connectionString: process.env.DATABASE_URL }
     : {};
 
 require('dotenv').config({
