@@ -47,7 +47,7 @@ describe("GET /api/articles/:article_id", () => {
           topic: "mitch",
           author: "icellusedkars",
           body: "I was hungry.",
-          created_at: "2020-01-07T11:08:00.000Z",
+          created_at: "2020-01-07T14:08:00.000Z",
           votes: 0,
           comment_count: "0",
         });
@@ -63,7 +63,7 @@ describe("GET /api/articles/:article_id", () => {
           topic: "mitch",
           author: "butter_bridge",
           body: "I find this existence challenging",
-          created_at: "2020-07-09T18:11:00.000Z",
+          created_at: "2020-07-09T20:11:00.000Z",
           votes: 100,
           comment_count: "11",
         });
@@ -126,7 +126,7 @@ describe("PATCH /api/articles/:article_id", () => {
           topic: "mitch",
           author: "icellusedkars",
           body: "some gifs",
-          created_at: "2020-11-03T06:12:00.000Z",
+          created_at: "2020-11-03T09:12:00.000Z",
           votes: 3,
         });
       });
@@ -146,7 +146,7 @@ describe("PATCH /api/articles/:article_id", () => {
           topic: "mitch",
           author: "icellusedkars",
           body: "some gifs",
-          created_at: "2020-11-03T06:12:00.000Z",
+          created_at: "2020-11-03T09:12:00.000Z",
           votes: -3,
         });
       });
